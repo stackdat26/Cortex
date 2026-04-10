@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CORTEX</title>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&display=swap');
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      min-height:100vh;
+      background:linear-gradient(135deg,#0a0a1a 0%,#0d1117 40%,#0a0f1e 100%);
+      font-family:'Inter',system-ui,sans-serif;
+      display:flex;align-items:center;justify-content:center;
+      padding:24px;
+    }
+    body::before{
+      content:'';position:fixed;inset:0;
+      background:radial-gradient(ellipse 80% 50% at 50% -10%,rgba(120,100,255,0.18) 0%,transparent 70%),
+                 radial-gradient(ellipse 60% 40% at 80% 80%,rgba(80,160,255,0.1) 0%,transparent 60%);
+      pointer-events:none;
+    }
+    .app{width:100%;max-width:680px;position:relative}
+    .glass{
+      background:rgba(255,255,255,0.06);
+      border:1px solid rgba(255,255,255,0.12);
+      border-radius:20px;
+      backdrop-filter:blur(20px);
+      -webkit-backdrop-filter:blur(20px);
+    }
+    .glass-strong{
+      background:rgba(255,255,255,0.09);
+      border:1px solid rgba(255,255,255,0.18);
+      border-radius:16px;
+      backdrop-filter:blur(30px);
+      -webkit-backdrop-filter:blur(30px);
+    }
+    .header{text-align:center;margin-bottom:28px}
+    .proto-label{font-size:11px;font-weight:600;letter-spacing:0.25em;color:rgba(255,255,255,0.3);text-transform:uppercase;margin-bottom:8px}
+    .title{font-size:42px;font-weight:300;color:#fff;letter-spacing:-0.02em;line-height:1}
+    .title span{font-weight:700;background:linear-gradient(90deg,#a78bfa,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+    .subtitle{font-size:13px;color:rgba(255,255,255,0.35);margin-top:10px;font-weight:300;line-height:1.6}
+
+    .agents{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
+    .agent{padding:14px 10px;text-align:center;border-radius:14px;transition:all 0.25s;cursor:default}
+    .agent-dot{width:8px;height:8px;border-radius:50%;margin:0 auto 8px;background:rgba(255,255,255,0.2);transition:all 0.3s}
+    .agent.active .agent-dot{background:#a78bfa;box-shadow:0 0 10px rgba(167,139,250,0.7)}
+    .agent.active{background:rgba(167,139,250,0.08);border-color:rgba(167,139,250,0.25)}
+    .agent-name{font-size:12px;font-weight:500;color:rgba(255,255,255,0.7);margin-bottom:4px}
+    .agent-rule{font-size:10px;color:rgba(255,255,255,0.3);line-height:1.4}
+
+    .cmd-box{padding:20px;margin-bottom:14px}
+    .cmd-label{font-size:11px;font-weight:600;letter-spacing:0.1em;color:rgba(255,255,255,0.3);text-transform:uppercase;margin-bottom:12px}
+    .cmd-row{display:flex;gap:8px;flex-wrap:wrap}
+    .cmd-input{
+      flex:1;min-width:200px;
+      background:rgba(255,255,255,0.07);
+      border:1px solid rgba(255,255,255,0.15);
+      border-radius:12px;padding:13px 16px;
+      font-size:14px;color:#fff;outline:none;
+      font-family:'Inter',system-ui,sans-serif;font-weight:300;
+      transition:border-color 0.2s,background 0.2s;
+    }
+    .cmd-input::placeholder{color:rgba(255,255,255,0.2)}
+    .cmd-input:focus{border-color:rgba(167,139,250,0.5);background:rgba(255,255,255,0.1)}
+    .mood-sel{
+      background:rgba(255,255,255,0.07);border:1px solid rgba(255,255,255,0.15);
+      border-radius:12px;padding:13px 14px;font-size:13px;
+      color:rgba(255,255,255,0.7);outline:none;
+      font-family:'Inter',system-ui,sans-serif;cursor:pointer;
+      -webkit-appearance:none;
+    }
+    .mood-sel option{background:#1a1a2e;color:#fff}
+    .run-btn{
+      background:linear-gradient(135deg,rgba(167,139,250,0.25),rgba(96,165,250,0.25));
+      border:1px solid rgba(167,139,250,0.4);border-radius:12px;
+      padding:13px 24px;font-size:14px;font-weight:500;color:#fff;
+      cursor:pointer;white-space:nowrap;
+      transition:all 0.2s;font-family:'Inter',system-ui,sans-serif;
+    }
+    .run-btn:hover{background:linear-gradient(135deg,rgba(167,139,250,0.4),rgba(96,165,250,0.4));transform:translateY(-1px)}
+    .run-btn:active{transform:scale(0.97)}
+    .run-btn:disabled{opacity:0.35;cursor:not-allowed;transform:none}
+
+    .thinking{display:none;padding:18px 20px;margin-bottom:14px;align-items:center;gap:14px}
+    .thinking.show{display:flex}
+    .spin{width:24px;height:24px;border-radius:50%;border:2px solid rgba(167,139,250,0.3);border-top-color:#a78bfa;animation:spin 0.9s linear infinite;flex-shrink:0}
+    @keyframes spin{to{transform:rotate(360deg)}}
+    .think-steps{display:flex;flex-direction:column;gap:5px}
+    .think-step{font-size:12px;color:rgba(255,255,255,0.25);transition:color 0.3s;font-weight:300}
+    .think-step.lit{color:rgba(255,255,255,0.85)}
+    .think-step.done{color:rgba(167,139,250,0.6)}
+
+    .result{display:none;padding:22px;margin-bottom:14px}
+    .result.show{display:block}
+    .r-tag{font-size:10px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;margin-bottom:10px}
+    .r-tag.Approved{color:#34d399}
+    .r-tag.Override{color:#f59e0b}
+    .r-tag.Blocked{color:#f87171}
+    .r-tag.No-conflicts{color:#a78bfa}
+    .r-verdict{font-size:19px;font-weight:500;color:#fff;margin-bottom:14px;line-height:1.4}
+    .r-reason{font-size:13px;color:rgba(255,255,255,0.5);line-height:1.75;font-weight:300}
+    .chips{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0}
+    .chip{font-size:11px;padding:4px 11px;border-radius:20px;font-weight:500}
+    .chip-c{background:rgba(248,113,113,0.12);border:1px solid rgba(248,113,113,0.25);color:#fca5a5}
+    .chip-a{background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.2);color:#6ee7b7}
+    .chip-o{background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);color:#fcd34d}
+    .divider{height:1px;background:rgba(255,255,255,0.07);margin:14px 0}
+
+    .footer{text-align:center;font-size:11px;color:rgba(255,255,255,0.15);font-weight:300;letter-spacing:0.06em;margin-top:16px}
+  </style>
+</head>
+<body>
+<div class="app">
+  <div class="header">
+    <div class="proto-label">Protocol v0.1</div>
+    <div class="title">C<span>ORTEX</span></div>
+    <div class="subtitle">Your agents don't talk to each other.<br>They answer to something higher.</div>
+  </div>
+
+  <div class="agents">
+    <div class="agent glass" id="ag-budget">
+      <div class="agent-dot"></div>
+      <div class="agent-name">Budget</div>
+      <div class="agent-rule">Max $400 · no subs</div>
+    </div>
+    <div class="agent glass" id="ag-booking">
+      <div class="agent-dot"></div>
+      <div class="agent-name">Booking</div>
+      <div class="agent-rule">Best flight · any price</div>
+    </div>
+    <div class="agent glass" id="ag-health">
+      <div class="agent-dot"></div>
+      <div class="agent-name">Health</div>
+      <div class="agent-rule">8hrs sleep · no 4am</div>
+    </div>
+    <div class="agent glass" id="ag-food">
+      <div class="agent-dot"></div>
+      <div class="agent-name">Food</div>
+      <div class="agent-rule">Healthy · max $30</div>
+    </div>
+  </div>
+
+  <div class="cmd-box glass">
+    <div class="cmd-label">Command</div>
+    <div class="cmd-row">
+      <input class="cmd-input" id="cmd" placeholder="Tell CORTEX what you want…" />
+      <select class="mood-sel" id="mood">
+        <option value="normal day">Normal</option>
+        <option value="tough day, be lenient">Tough day</option>
+        <option value="great mood, be strict">Strict mode</option>
+      </select>
+      <button class="run-btn" id="runBtn" onclick="runCortex()">Decide</button>
+    </div>
+  </div>
+
+  <div class="thinking glass" id="thinking">
+    <div class="spin"></div>
+    <div class="think-steps">
+      <div class="think-step" id="ts1">Parsing intent…</div>
+      <div class="think-step" id="ts2">Loading agent manifests…</div>
+      <div class="think-step" id="ts3">Detecting conflicts…</div>
+      <div class="think-step" id="ts4">Applying human fairness…</div>
+      <div class="think-step" id="ts5">Forming verdict…</div>
+    </div>
+  </div>
+
+  <div class="result glass-strong" id="result">
+    <div class="r-tag" id="rTag"></div>
+    <div class="r-verdict" id="rVerdict"></div>
+    <div class="chips" id="rChips"></div>
+    <div class="divider"></div>
+    <div class="r-reason" id="rReason"></div>
+  </div>
+
+  <div class="footer">Agents never knew this happened</div>
+</div>
+
+<script>
+  function resetAgents(){
+    document.querySelectorAll('.agent').forEach(a=>a.classList.remove('active'));
+  }
+  function activateAgents(list){
+    list.forEach(id=>{
+      const el=document.getElementById('ag-'+id);
+      if(el)el.classList.add('active');
+    });
+  }
+  function stepThrough(cb){
+    const steps=['ts1','ts2','ts3','ts4','ts5'];
+    steps.forEach(s=>{const el=document.getElementById(s);el.classList.remove('lit','done')});
+    let i=0;
+    const iv=setInterval(()=>{
+      if(i>0)document.getElementById(steps[i-1]).classList.replace('lit','done');
+      if(i<steps.length){document.getElementById(steps[i]).classList.add('lit');i++;}
+      else{clearInterval(iv);cb();}
+    },500);
+  }
+  async function runCortex(){
+    const cmd=document.getElementById('cmd').value.trim();
+    if(!cmd)return;
+    const mood=document.getElementById('mood').value;
+    const btn=document.getElementById('runBtn');
+    btn.disabled=true;
+    resetAgents();
+    document.getElementById('result').classList.remove('show');
+    document.getElementById('thinking').classList.add('show');
+    const lower=cmd.toLowerCase();
+    const agents=[];
+    if(lower.match(/flight|book|travel|fly|ticket|madrid|paris|london/))agents.push('budget','booking');
+    if(lower.match(/food|eat|pizza|order|meal|dinner|lunch/))agents.push('food','budget');
+    if(lower.match(/sleep|gym|workout|early|4am|5am/))agents.push('health');
+    if(!agents.length)agents.push('budget');
+    activateAgents([...new Set(agents)]);
+    stepThrough(async()=>{
+      try{
+        const res=await fetch('/decide',{
+          method:'POST',
+          headers:{'Content-Type':'application/json'},
+          body:JSON.stringify({command:cmd,mood})
+        });
+        const data=await res.json();
+        showResult(data);
+      }catch(e){
+        showResult({tag:'Error',verdict:'CORTEX could not reach its brain.',reason:'Check that the server is running and the Groq key is set.',conflicts:[],aligned:[],agentsInvolved:[]});
+      }
+      document.getElementById('thinking').classList.remove('show');
+      btn.disabled=false;
+    });
+  }
+  function showResult(d){
+    const tagEl=document.getElementById('rTag');
+    tagEl.textContent=d.tag;
+    tagEl.className='r-tag '+(d.tag||'').replace(/\s+/g,'-');
+    document.getElementById('rVerdict').textContent=d.verdict;
+    document.getElementById('rReason').textContent=d.reason;
+    const chips=document.getElementById('rChips');
+    chips.innerHTML='';
+    (d.conflicts||[]).forEach(c=>{chips.innerHTML+=`<span class="chip chip-c">${c}</span>`});
+    (d.aligned||[]).forEach(a=>{chips.innerHTML+=`<span class="chip chip-a">${a}</span>`});
+    (d.agentsInvolved||[]).forEach(a=>{chips.innerHTML+=`<span class="chip chip-o">${a}</span>`});
+    document.getElementById('result').classList.add('show');
+  }
+  document.getElementById('cmd').addEventListener('keydown',e=>{if(e.key==='Enter')runCortex()});
+</script>
+</body>
+</html>
