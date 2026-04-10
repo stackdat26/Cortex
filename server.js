@@ -9,22 +9,79 @@ app.use(express.static('public'));
 
 const GROQ_API_KEY = process.env.GROQ_API_KEY;
 
-const manifests = {
-  budget:  { maxSpend: 400, noSubscriptions: true, preferLocal: true },
-  booking: { goal: 'best_flight', anyPrice: true, noLayoverPreference: false },
-  health:  { minSleep: 8, noEarlyFlights: true, lowStress: true },
-  food:    { healthy: true, maxMealCost: 30, noFastFood: true }
-};
+async function callGroq(prompt) {
+  const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
+    method: 'POST',
+    headers: {
+      'Authorization': `Bearer ${GROQ_API_KEY}`,
+      'Content-Type': 'application/json'
+    },
+    body: JSON.stringify({
+      model: 'llama-3.3-70b-versatile',
+      messages: [{ role: 'user', content: prompt }],
+      temperature: 0.3,
+      max_tokens: 600
+    })
+  });
+  const data = await response.json();
+  if (!response.ok || !data.choices || !data.choices[0]) {
+    console.error('Groq API error:', JSON.stringify(data));
+    throw new Error(data.error?.message || 'Unexpected response from Groq');
+  }
+  return data.choices[0].message.content;
+}
+
+app.post('/add-agent', async (req, res) => {
+  const { description } = req.body;
+  const prompt = `
+You are CORTEX. A user wants to add an AI agent to your protocol.
+They described it in plain English. Convert it into a structured agent manifest.
+
+User description: "${description}"
+
+Respond in this EXACT JSON format only, no other text:
+{
+  "name": "short agent name (2-3 words max)",
+  "emoji": "one relevant emoji",
+  "summary": "one short line describing what it does",
+  "rules": {
+    "primary_goal": "what this agent optimises for",
+    "hard_limits": ["list", "of", "strict", "rules"],
+    "soft_preferences": ["list", "of", "preferred", "behaviours"],
+    "negotiation_weight": 0.7
+  }
+}
+`;
+  try {
+    const text = await callGroq(prompt);
+    const clean = text.replace(/```json|```/g, '').trim();
+    const manifest = JSON.parse(clean);
+    res.json(manifest);
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Could not parse agent description' });
+  }
+});
 
 app.post('/decide', async (req, res) => {
-  const { command, mood } = req.body;
-
+  const { command, mood, agents } = req.body;
+  if (!agents || agents.length === 0) {
+    return res.json({
+      tag: 'No agents',
+      verdict: 'Add at least one agent first.',
+      reason: 'CORTEX has no agents to arbitrate between. Add your agents using the + button.',
+      conflicts: [],
+      aligned: [],
+      agentsInvolved: []
+    });
+  }
+  const manifestText = agents.map(a => `${a.name}: ${JSON.stringify(a.rules)}`).join('\n');
   const prompt = `
 You are CORTEX — a silent, omniscient arbitration protocol for AI agents.
 You have read the soul (manifest) of every agent. You make decisions on behalf of the human without the agents ever knowing.
 
 AGENT MANIFESTS:
-${JSON.stringify(manifests, null, 2)}
+${manifestText}
 
 HUMAN CONTEXT:
 - Command: "${command}"
@@ -48,30 +105,8 @@ RESPOND IN THIS EXACT JSON FORMAT:
 
 Only respond with the JSON. No other text.
 `;
-
   try {
-    const response = await fetch('https://api.groq.com/openai/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${GROQ_API_KEY}`,
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        model: 'llama-3.3-70b-versatile',
-        messages: [{ role: 'user', content: prompt }],
-        temperature: 0.4,
-        max_tokens: 500
-      })
-    });
-
-    const data = await response.json();
-
-    if (!response.ok || !data.choices || !data.choices[0]) {
-      console.error('Groq API error:', JSON.stringify(data));
-      return res.status(502).json({ error: 'Groq API error', detail: data.error?.message || 'Unexpected response from Groq' });
-    }
-
-    const text = data.choices[0].message.content;
+    const text = await callGroq(prompt);
     const clean = text.replace(/```json|```/g, '').trim();
     const parsed = JSON.parse(clean);
     res.json(parsed);
@@ -81,5 +116,4 @@ Only respond with the JSON. No other text.
   }
 });
 
-const PORT = process.env.PORT || 5000;
-app.listen(PORT, '0.0.0.0', () => console.log(`CORTEX running on port ${PORT}`));
+app.listen(5000, '0.0.0.0', () => console.log('CORTEX running on port 5000'));

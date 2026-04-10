@@ -11,8 +11,8 @@
       min-height:100vh;
       background:linear-gradient(135deg,#0a0a1a 0%,#0d1117 40%,#0a0f1e 100%);
       font-family:'Inter',system-ui,sans-serif;
-      display:flex;align-items:center;justify-content:center;
-      padding:24px;
+      display:flex;align-items:flex-start;justify-content:center;
+      padding:32px 24px;
     }
     body::before{
       content:'';position:fixed;inset:0;
@@ -20,7 +20,7 @@
                  radial-gradient(ellipse 60% 40% at 80% 80%,rgba(80,160,255,0.1) 0%,transparent 60%);
       pointer-events:none;
     }
-    .app{width:100%;max-width:680px;position:relative}
+    .app{width:100%;max-width:700px;position:relative}
     .glass{
       background:rgba(255,255,255,0.06);
       border:1px solid rgba(255,255,255,0.12);
@@ -41,14 +41,65 @@
     .title span{font-weight:700;background:linear-gradient(90deg,#a78bfa,#60a5fa);-webkit-background-clip:text;-webkit-text-fill-color:transparent}
     .subtitle{font-size:13px;color:rgba(255,255,255,0.35);margin-top:10px;font-weight:300;line-height:1.6}
 
-    .agents{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;margin-bottom:16px}
-    .agent{padding:14px 10px;text-align:center;border-radius:14px;transition:all 0.25s;cursor:default}
+    /* Agents section */
+    .agents-header{display:flex;align-items:center;justify-content:space-between;margin-bottom:10px}
+    .agents-label{font-size:11px;font-weight:600;letter-spacing:0.1em;color:rgba(255,255,255,0.3);text-transform:uppercase}
+    .add-btn{
+      display:flex;align-items:center;gap:6px;
+      background:rgba(167,139,250,0.15);border:1px solid rgba(167,139,250,0.35);
+      border-radius:10px;padding:6px 12px;font-size:12px;font-weight:500;
+      color:rgba(167,139,250,0.9);cursor:pointer;
+      transition:all 0.2s;font-family:'Inter',system-ui,sans-serif;
+    }
+    .add-btn:hover{background:rgba(167,139,250,0.25);border-color:rgba(167,139,250,0.5)}
+
+    .agents-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(140px,1fr));gap:8px;margin-bottom:14px;min-height:20px}
+    .agent{padding:14px 12px;text-align:center;border-radius:14px;transition:all 0.25s;cursor:default;position:relative}
     .agent-dot{width:8px;height:8px;border-radius:50%;margin:0 auto 8px;background:rgba(255,255,255,0.2);transition:all 0.3s}
     .agent.active .agent-dot{background:#a78bfa;box-shadow:0 0 10px rgba(167,139,250,0.7)}
     .agent.active{background:rgba(167,139,250,0.08);border-color:rgba(167,139,250,0.25)}
+    .agent-emoji{font-size:18px;margin-bottom:6px}
     .agent-name{font-size:12px;font-weight:500;color:rgba(255,255,255,0.7);margin-bottom:4px}
     .agent-rule{font-size:10px;color:rgba(255,255,255,0.3);line-height:1.4}
+    .agent-remove{
+      position:absolute;top:6px;right:8px;
+      font-size:14px;color:rgba(255,255,255,0.15);cursor:pointer;
+      transition:color 0.2s;line-height:1;
+    }
+    .agent-remove:hover{color:rgba(248,113,113,0.7)}
+    .no-agents{
+      font-size:12px;color:rgba(255,255,255,0.2);font-weight:300;
+      padding:18px 0;text-align:center;width:100%;
+    }
 
+    /* Add agent panel */
+    .add-panel{display:none;margin-bottom:14px;padding:18px 20px}
+    .add-panel.show{display:block}
+    .add-panel-label{font-size:11px;font-weight:600;letter-spacing:0.1em;color:rgba(255,255,255,0.3);text-transform:uppercase;margin-bottom:10px}
+    .add-panel-row{display:flex;gap:8px}
+    .add-input{
+      flex:1;
+      background:rgba(255,255,255,0.07);
+      border:1px solid rgba(255,255,255,0.15);
+      border-radius:12px;padding:12px 16px;
+      font-size:13px;color:#fff;outline:none;
+      font-family:'Inter',system-ui,sans-serif;font-weight:300;
+      transition:border-color 0.2s,background 0.2s;
+    }
+    .add-input::placeholder{color:rgba(255,255,255,0.2)}
+    .add-input:focus{border-color:rgba(167,139,250,0.5);background:rgba(255,255,255,0.1)}
+    .add-submit-btn{
+      background:linear-gradient(135deg,rgba(167,139,250,0.25),rgba(96,165,250,0.25));
+      border:1px solid rgba(167,139,250,0.4);border-radius:12px;
+      padding:12px 18px;font-size:13px;font-weight:500;color:#fff;
+      cursor:pointer;white-space:nowrap;
+      transition:all 0.2s;font-family:'Inter',system-ui,sans-serif;
+    }
+    .add-submit-btn:hover{background:linear-gradient(135deg,rgba(167,139,250,0.4),rgba(96,165,250,0.4))}
+    .add-submit-btn:disabled{opacity:0.35;cursor:not-allowed}
+    .add-hint{font-size:11px;color:rgba(255,255,255,0.2);margin-top:8px;font-weight:300}
+
+    /* Command box */
     .cmd-box{padding:20px;margin-bottom:14px}
     .cmd-label{font-size:11px;font-weight:600;letter-spacing:0.1em;color:rgba(255,255,255,0.3);text-transform:uppercase;margin-bottom:12px}
     .cmd-row{display:flex;gap:8px;flex-wrap:wrap}
@@ -82,6 +133,7 @@
     .run-btn:active{transform:scale(0.97)}
     .run-btn:disabled{opacity:0.35;cursor:not-allowed;transform:none}
 
+    /* Thinking */
     .thinking{display:none;padding:18px 20px;margin-bottom:14px;align-items:center;gap:14px}
     .thinking.show{display:flex}
     .spin{width:24px;height:24px;border-radius:50%;border:2px solid rgba(167,139,250,0.3);border-top-color:#a78bfa;animation:spin 0.9s linear infinite;flex-shrink:0}
@@ -91,6 +143,7 @@
     .think-step.lit{color:rgba(255,255,255,0.85)}
     .think-step.done{color:rgba(167,139,250,0.6)}
 
+    /* Result */
     .result{display:none;padding:22px;margin-bottom:14px}
     .result.show{display:block}
     .r-tag{font-size:10px;font-weight:700;letter-spacing:0.18em;text-transform:uppercase;margin-bottom:10px}
@@ -98,6 +151,7 @@
     .r-tag.Override{color:#f59e0b}
     .r-tag.Blocked{color:#f87171}
     .r-tag.No-conflicts{color:#a78bfa}
+    .r-tag.No-agents{color:rgba(255,255,255,0.4)}
     .r-verdict{font-size:19px;font-weight:500;color:#fff;margin-bottom:14px;line-height:1.4}
     .r-reason{font-size:13px;color:rgba(255,255,255,0.5);line-height:1.75;font-weight:300}
     .chips{display:flex;flex-wrap:wrap;gap:6px;margin:14px 0}
@@ -106,7 +160,6 @@
     .chip-a{background:rgba(52,211,153,0.1);border:1px solid rgba(52,211,153,0.2);color:#6ee7b7}
     .chip-o{background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2);color:#fcd34d}
     .divider{height:1px;background:rgba(255,255,255,0.07);margin:14px 0}
-
     .footer{text-align:center;font-size:11px;color:rgba(255,255,255,0.15);font-weight:300;letter-spacing:0.06em;margin-top:16px}
   </style>
 </head>
@@ -118,27 +171,22 @@
     <div class="subtitle">Your agents don't talk to each other.<br>They answer to something higher.</div>
   </div>
 
-  <div class="agents">
-    <div class="agent glass" id="ag-budget">
-      <div class="agent-dot"></div>
-      <div class="agent-name">Budget</div>
-      <div class="agent-rule">Max $400 · no subs</div>
+  <div class="agents-header">
+    <div class="agents-label">Your Agents</div>
+    <button class="add-btn" onclick="toggleAddPanel()">+ Add Agent</button>
+  </div>
+
+  <div class="add-panel glass" id="addPanel">
+    <div class="add-panel-label">Describe your agent in plain English</div>
+    <div class="add-panel-row">
+      <input class="add-input" id="agentDesc" placeholder='e.g. "Never spend more than £200 on anything. Always look for discounts."' />
+      <button class="add-submit-btn" id="addSubmitBtn" onclick="submitAgent()">Create</button>
     </div>
-    <div class="agent glass" id="ag-booking">
-      <div class="agent-dot"></div>
-      <div class="agent-name">Booking</div>
-      <div class="agent-rule">Best flight · any price</div>
-    </div>
-    <div class="agent glass" id="ag-health">
-      <div class="agent-dot"></div>
-      <div class="agent-name">Health</div>
-      <div class="agent-rule">8hrs sleep · no 4am</div>
-    </div>
-    <div class="agent glass" id="ag-food">
-      <div class="agent-dot"></div>
-      <div class="agent-name">Food</div>
-      <div class="agent-rule">Healthy · max $30</div>
-    </div>
+    <div class="add-hint">CORTEX will convert your description into an agent manifest automatically.</div>
+  </div>
+
+  <div class="agents-grid" id="agentsGrid">
+    <div class="no-agents" id="noAgentsMsg">No agents yet — add one above to get started.</div>
   </div>
 
   <div class="cmd-box glass">
@@ -177,71 +225,143 @@
 </div>
 
 <script>
-  function resetAgents(){
-    document.querySelectorAll('.agent').forEach(a=>a.classList.remove('active'));
+  let agents = JSON.parse(localStorage.getItem('cortex_agents') || '[]');
+
+  function saveAgents() {
+    localStorage.setItem('cortex_agents', JSON.stringify(agents));
   }
-  function activateAgents(list){
-    list.forEach(id=>{
-      const el=document.getElementById('ag-'+id);
-      if(el)el.classList.add('active');
+
+  function renderAgents() {
+    const grid = document.getElementById('agentsGrid');
+    const noMsg = document.getElementById('noAgentsMsg');
+    if (agents.length === 0) {
+      grid.innerHTML = '<div class="no-agents" id="noAgentsMsg">No agents yet — add one above to get started.</div>';
+      return;
+    }
+    grid.innerHTML = agents.map((a, i) => `
+      <div class="agent glass" id="ag-${i}">
+        <span class="agent-remove" onclick="removeAgent(${i})" title="Remove">×</span>
+        <div class="agent-emoji">${a.emoji || '🤖'}</div>
+        <div class="agent-name">${a.name}</div>
+        <div class="agent-rule">${a.summary}</div>
+        <div class="agent-dot"></div>
+      </div>
+    `).join('');
+  }
+
+  function removeAgent(i) {
+    agents.splice(i, 1);
+    saveAgents();
+    renderAgents();
+  }
+
+  function toggleAddPanel() {
+    const panel = document.getElementById('addPanel');
+    panel.classList.toggle('show');
+    if (panel.classList.contains('show')) {
+      document.getElementById('agentDesc').focus();
+    }
+  }
+
+  async function submitAgent() {
+    const desc = document.getElementById('agentDesc').value.trim();
+    if (!desc) return;
+    const btn = document.getElementById('addSubmitBtn');
+    btn.disabled = true;
+    btn.textContent = 'Creating…';
+    try {
+      const res = await fetch('/add-agent', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ description: desc })
+      });
+      const manifest = await res.json();
+      if (manifest.error) throw new Error(manifest.error);
+      agents.push(manifest);
+      saveAgents();
+      renderAgents();
+      document.getElementById('agentDesc').value = '';
+      document.getElementById('addPanel').classList.remove('show');
+    } catch (e) {
+      alert('Could not create agent. Please try again.');
+    }
+    btn.disabled = false;
+    btn.textContent = 'Create';
+  }
+
+  function resetAgents() {
+    document.querySelectorAll('.agent').forEach(a => a.classList.remove('active'));
+  }
+
+  function activateAgents(names) {
+    names.forEach(name => {
+      const lower = name.toLowerCase().replace(/\s+/g, '');
+      agents.forEach((a, i) => {
+        if (a.name.toLowerCase().replace(/\s+/g, '').includes(lower) || lower.includes(a.name.toLowerCase().replace(/\s+/g, ''))) {
+          const el = document.getElementById('ag-' + i);
+          if (el) el.classList.add('active');
+        }
+      });
     });
   }
-  function stepThrough(cb){
-    const steps=['ts1','ts2','ts3','ts4','ts5'];
-    steps.forEach(s=>{const el=document.getElementById(s);el.classList.remove('lit','done')});
-    let i=0;
-    const iv=setInterval(()=>{
-      if(i>0)document.getElementById(steps[i-1]).classList.replace('lit','done');
-      if(i<steps.length){document.getElementById(steps[i]).classList.add('lit');i++;}
-      else{clearInterval(iv);cb();}
-    },500);
+
+  function stepThrough(cb) {
+    const steps = ['ts1','ts2','ts3','ts4','ts5'];
+    steps.forEach(s => { const el = document.getElementById(s); el.classList.remove('lit','done'); });
+    let i = 0;
+    const iv = setInterval(() => {
+      if (i > 0) document.getElementById(steps[i-1]).classList.replace('lit','done');
+      if (i < steps.length) { document.getElementById(steps[i]).classList.add('lit'); i++; }
+      else { clearInterval(iv); cb(); }
+    }, 500);
   }
-  async function runCortex(){
-    const cmd=document.getElementById('cmd').value.trim();
-    if(!cmd)return;
-    const mood=document.getElementById('mood').value;
-    const btn=document.getElementById('runBtn');
-    btn.disabled=true;
+
+  async function runCortex() {
+    const cmd = document.getElementById('cmd').value.trim();
+    if (!cmd) return;
+    const mood = document.getElementById('mood').value;
+    const btn = document.getElementById('runBtn');
+    btn.disabled = true;
     resetAgents();
     document.getElementById('result').classList.remove('show');
     document.getElementById('thinking').classList.add('show');
-    const lower=cmd.toLowerCase();
-    const agents=[];
-    if(lower.match(/flight|book|travel|fly|ticket|madrid|paris|london/))agents.push('budget','booking');
-    if(lower.match(/food|eat|pizza|order|meal|dinner|lunch/))agents.push('food','budget');
-    if(lower.match(/sleep|gym|workout|early|4am|5am/))agents.push('health');
-    if(!agents.length)agents.push('budget');
-    activateAgents([...new Set(agents)]);
-    stepThrough(async()=>{
-      try{
-        const res=await fetch('/decide',{
-          method:'POST',
-          headers:{'Content-Type':'application/json'},
-          body:JSON.stringify({command:cmd,mood})
+
+    stepThrough(async () => {
+      try {
+        const res = await fetch('/decide', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ command: cmd, mood, agents })
         });
-        const data=await res.json();
+        const data = await res.json();
+        if (data.agentsInvolved) activateAgents(data.agentsInvolved);
         showResult(data);
-      }catch(e){
-        showResult({tag:'Error',verdict:'CORTEX could not reach its brain.',reason:'Check that the server is running and the Groq key is set.',conflicts:[],aligned:[],agentsInvolved:[]});
+      } catch (e) {
+        showResult({ tag: 'Error', verdict: 'CORTEX could not reach its brain.', reason: 'Check that the server is running and the Groq key is set.', conflicts: [], aligned: [], agentsInvolved: [] });
       }
       document.getElementById('thinking').classList.remove('show');
-      btn.disabled=false;
+      btn.disabled = false;
     });
   }
-  function showResult(d){
-    const tagEl=document.getElementById('rTag');
-    tagEl.textContent=d.tag;
-    tagEl.className='r-tag '+(d.tag||'').replace(/\s+/g,'-');
-    document.getElementById('rVerdict').textContent=d.verdict;
-    document.getElementById('rReason').textContent=d.reason;
-    const chips=document.getElementById('rChips');
-    chips.innerHTML='';
-    (d.conflicts||[]).forEach(c=>{chips.innerHTML+=`<span class="chip chip-c">${c}</span>`});
-    (d.aligned||[]).forEach(a=>{chips.innerHTML+=`<span class="chip chip-a">${a}</span>`});
-    (d.agentsInvolved||[]).forEach(a=>{chips.innerHTML+=`<span class="chip chip-o">${a}</span>`});
+
+  function showResult(d) {
+    const tagEl = document.getElementById('rTag');
+    tagEl.textContent = d.tag;
+    tagEl.className = 'r-tag ' + (d.tag || '').replace(/\s+/g, '-');
+    document.getElementById('rVerdict').textContent = d.verdict;
+    document.getElementById('rReason').textContent = d.reason;
+    const chips = document.getElementById('rChips');
+    chips.innerHTML = '';
+    (d.conflicts || []).forEach(c => { chips.innerHTML += `<span class="chip chip-c">${c}</span>`; });
+    (d.aligned || []).forEach(a => { chips.innerHTML += `<span class="chip chip-a">${a}</span>`; });
+    (d.agentsInvolved || []).forEach(a => { chips.innerHTML += `<span class="chip chip-o">${a}</span>`; });
     document.getElementById('result').classList.add('show');
   }
-  document.getElementById('cmd').addEventListener('keydown',e=>{if(e.key==='Enter')runCortex()});
+
+  document.getElementById('cmd').addEventListener('keydown', e => { if (e.key === 'Enter') runCortex(); });
+  document.getElementById('agentDesc').addEventListener('keydown', e => { if (e.key === 'Enter') submitAgent(); });
+
+  renderAgents();
 </script>
 </body>
 </html>
