@@ -75,4 +75,5 @@ Only respond with the JSON. No other text.
   }
 });
 
-app.listen(3000, () => console.log('CORTEX running on port 3000'));
+const PORT = process.env.PORT || 5000;
+app.listen(PORT, '0.0.0.0', () => console.log(`CORTEX running on port ${PORT}`));
