@@ -57,7 +57,7 @@ Only respond with the JSON. No other text.
         'Content-Type': 'application/json'
       },
       body: JSON.stringify({
-        model: 'llama3-70b-8192',
+        model: 'llama-3.3-70b-versatile',
         messages: [{ role: 'user', content: prompt }],
         temperature: 0.4,
         max_tokens: 500
@@ -65,6 +65,12 @@ Only respond with the JSON. No other text.
     });
 
     const data = await response.json();
+
+    if (!response.ok || !data.choices || !data.choices[0]) {
+      console.error('Groq API error:', JSON.stringify(data));
+      return res.status(502).json({ error: 'Groq API error', detail: data.error?.message || 'Unexpected response from Groq' });
+    }
+
     const text = data.choices[0].message.content;
     const clean = text.replace(/```json|```/g, '').trim();
     const parsed = JSON.parse(clean);
